@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add and Fetch Test Data</title>
+    <style>
+        body {
+            text-align: center;
+        }
+
+        h1 {
+            clear: both;
+        }
+
+        #testForm {
+            max-width: 400px;
+            margin: auto;
+            text-align: center;
+        }
+
+        label {
+            display: inline-block;
+            width: 200px;
+            text-align: right;
+            margin-right: 10px;
+        }
+
+        input {
+            width: 200px;
+            margin-bottom: 10px;
+        }
+
+        button {
+            width: 45%;
+            margin: 0 2.5%;
+        }
+
+        #testForm button {
+            width: 48%;
+            margin: 0 1%;
+        }
+        .form-container {
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .form-container label,
+        .form-container input {
+            margin-bottom: 10px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+
+        th {
+            background-color: #f2f2f2;
+        }
+
+        #testDataBody {
+            min-height: 50px;
+        }
+    </style>
+
+
+</head>
+<body>
+
+<h2>添加数据</h2>
+<div class="form-container">
+    <div>
+        <label for="NameEncrypted">name_encrypted :</label>
+        <input type="text" id="NameEncrypted" name="NameEncrypted" required>
+    </div>
+    <div>
+        <label for="NameUnencrypted">name_unencrypted:</label>
+        <input type="text" id="NameUnencrypted" name="NameUnencrypted" required>
+    </div>
+    <div>
+        <label for="AgeEncrypted">age_encrypted:</label>
+        <input type="text" id="AgeEncrypted" name="AgeEncrypted" required>
+    </div>
+    <div>
+        <label for="AgeUnencrypted">age_unencrypted:</label>
+        <input type="text" id="AgeUnencrypted" name="AgeUnencrypted" required>
+    </div>
+</div>
+<form id="testForm">
+    <button type="button" onclick="submitForm()">Submit</button>
+    <button type="button" onclick="fetchTestData()">Fetch Test Data</button>
+</form>
+<h2>获取到的测试数据</h2>
+<table border="1">
+    <thead>
+    <tr>
+        <th>id</th>
+        <th>name_encrypted</th>
+        <th>name_unencrypted</th>
+        <th>age_encrypted</th>
+        <th>age_unencrypted</th>
+    </thead>
+    <tbody id="testDataBody">
+    </tbody>
+</table>
+<script>
+
+    function submitForm() {
+        const NameEncrypted = document.getElementById('NameEncrypted').value;
+        const NameUnencrypted = document.getElementById('NameUnencrypted').value;
+        const AgeEncrypted = document.getElementById('AgeEncrypted').value;
+        const AgeUnencrypted = document.getElementById('AgeUnencrypted').value;
+
+        const data = {
+            name_encrypted: NameEncrypted,
+            name_unencrypted: NameUnencrypted,
+            age_encrypted: AgeEncrypted,
+            age_unencrypted: AgeUnencrypted
+        };
+
+        console.log("Values:", data);
+
+        fetch('http://127.0.0.1:8080/add', {
+            method: 'POST',
+            mode: 'cors',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(data),
+        })
+            .then(response => response.json())
+            .then(data => {
+                alert(data.message);
+                document.getElementById('testForm').reset();
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Failed to add test data');
+            });
+    }
+    function displayTestData(tests) {
+        const tbody = document.getElementById('testDataBody');
+        tbody.innerHTML = '';
+
+        tests.forEach(test => {
+            const row = document.createElement('tr');
+            const idCell = document.createElement('td');
+            idCell.textContent = test.id;
+            row.appendChild(idCell);
+
+            const nameEncryptedCell = document.createElement('td');
+            nameEncryptedCell.textContent = test.name_encrypted;
+            row.appendChild(nameEncryptedCell);
+
+            const nameUnencryptedCell = document.createElement('td');
+            nameUnencryptedCell.textContent = test.name_unencrypted;
+            row.appendChild(nameUnencryptedCell);
+
+            const ageEncryptedCell = document.createElement('td');
+            ageEncryptedCell.textContent = test.age_encrypted;
+            row.appendChild(ageEncryptedCell);
+
+            const ageUnencryptedCell = document.createElement('td');
+            ageUnencryptedCell.textContent = test.age_unencrypted;
+            row.appendChild(ageUnencryptedCell);
+
+            tbody.appendChild(row);
+        });
+    }
+
+    function fetchTestData() {
+        fetch('http://127.0.0.1:8080/list',{
+            mode: 'cors',
+        })
+            .then(response => response.json())
+            .then(data => {
+                console.log(data.tests)
+                displayTestData(data.tests);
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Failed to fetch test data');
+            });
+    }
+</script>
+
+</body>
+</html>
