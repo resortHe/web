@@ -7,6 +7,7 @@
     <style>
         body {
             text-align: center;
+            margin: 5%;
         }
 
         h1 {
@@ -14,14 +15,13 @@
         }
 
         #testForm {
-            max-width: 400px;
-            margin: auto;
-            text-align: center;
+
+            text-align: right;
         }
 
         label {
             display: inline-block;
-            width: 200px;
+            width: auto;
             text-align: right;
             margin-right: 10px;
         }
@@ -29,16 +29,13 @@
         input {
             width: 200px;
             margin-bottom: 10px;
-        }
-
-        button {
-            width: 45%;
-            margin: 0 2.5%;
+            padding: 10px;
         }
 
         #testForm button {
-            width: 48%;
-            margin: 0 1%;
+            width: 4%;
+            margin-top: 3%;
+            margin-left: 1%;
         }
         .form-container {
             display: flex;
@@ -63,6 +60,7 @@
 
         th {
             background-color: #f2f2f2;
+            text-align: center;
         }
 
         #testDataBody {
@@ -73,39 +71,40 @@
 
 </head>
 <body>
-
-<h2>添加数据</h2>
+<h1 style="color: aqua;">安永数据库加密系统加密演示</h1>
+<HR style="border:1dashed#987cb9"width="100%"color= aqua>
+<h2 style="text-align: left;">向数据库新增数据</h2>
 <div class="form-container">
     <div>
-        <label for="NameEncrypted">name_encrypted :</label>
+        <label for="NameEncrypted">姓名_加密 :</label>
         <input type="text" id="NameEncrypted" name="NameEncrypted" required>
     </div>
     <div>
-        <label for="NameUnencrypted">name_unencrypted:</label>
+        <label for="NameUnencrypted">姓名_未加密:</label>
         <input type="text" id="NameUnencrypted" name="NameUnencrypted" required>
     </div>
     <div>
-        <label for="AgeEncrypted">age_encrypted:</label>
+        <label for="AgeEncrypted">年龄_加密:</label>
         <input type="text" id="AgeEncrypted" name="AgeEncrypted" required>
     </div>
     <div>
-        <label for="AgeUnencrypted">age_unencrypted:</label>
+        <label for="AgeUnencrypted">年龄_未加密:</label>
         <input type="text" id="AgeUnencrypted" name="AgeUnencrypted" required>
     </div>
 </div>
 <form id="testForm">
-    <button type="button" onclick="submitForm()">Submit</button>
-    <button type="button" onclick="fetchTestData()">Fetch Test Data</button>
+    <button type="button" onclick="submitForm()">提交</button>
+    <button type="button" onclick="fetchTestData()">查询</button>
 </form>
-<h2>获取到的测试数据</h2>
+<h2>数据库数据</h2>
 <table border="1">
     <thead>
     <tr>
-        <th>id</th>
-        <th>name_encrypted</th>
-        <th>name_unencrypted</th>
-        <th>age_encrypted</th>
-        <th>age_unencrypted</th>
+        <th>序号</th>
+        <th>姓名_加密</th>
+        <th>姓名_未加密</th>
+        <th>年龄_加密</th>
+        <th>年龄_未加密</th>
     </thead>
     <tbody id="testDataBody">
     </tbody>
@@ -127,7 +126,7 @@
 
         console.log("Values:", data);
 
-        fetch('http://127.0.0.1:8080/add', {
+        fetch('http://192.168.6.108:8080/add', {
             method: 'POST',
             mode: 'cors',
             headers: {
@@ -176,7 +175,7 @@
     }
 
     function fetchTestData() {
-        fetch('http://127.0.0.1:8080/list',{
+        fetch('http://192.168.6.108:8080/list',{
             mode: 'cors',
         })
             .then(response => response.json())
