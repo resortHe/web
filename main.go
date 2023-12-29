@@ -9,6 +9,7 @@ import (
 	"gorm.io/gorm"
 	"log"
 	"net/http"
+	"strconv"
 )
 
 type Test struct {
@@ -42,15 +43,32 @@ func main() {
 		c.HTML(http.StatusOK, "index.html", nil)
 	})
 	r.GET("/list", func(c *gin.Context) {
-		test := make([]Test, 10)
-		if err := db.Table("test").Find(&test).Error; err != nil {
+		page, err := strconv.Atoi(c.Query("page"))
+		if err != nil || page < 1 {
+			page = 1
+		}
+		pageSize := 20
+		offset := (page - 1) * pageSize
+		test := make([]Test, pageSize)
+		var totalCount int64
+		if err := db.Table("test").Count(&totalCount).Error; err != nil {
 			log.Println(err)
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch data from the database"})
 			return
 		}
-		log.Printf("Ret"+"rieved tests: %+v\n", test)
-		c.JSON(http.StatusOK, gin.H{"tests": test})
+
+		if err := db.Table("test").Offset(offset).Limit(pageSize).Find(&test).Error; err != nil {
+			log.Println(err)
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch data from the database"})
+			return
+		}
+
+		log.Printf("Retrieved tests: %+v\n", test)
+		hasNextPage := int64(page*pageSize) < totalCount
+
+		c.JSON(http.StatusOK, gin.H{"tests": test, "hasNextPage": hasNextPage})
 	})
+
 	r.POST("/add", func(c *gin.Context) {
 		var test Test
 		err := c.ShouldBindJSON(&test)
@@ -69,7 +87,7 @@ func main() {
 		c.JSON(http.StatusOK, gin.H{"message": "User added successfully"})
 	})
 
-	err := r.Run(":8080")
+	err := r.Run("192.168.6.163:8080")
 	if err != nil {
 		fmt.Println(err)
 	}

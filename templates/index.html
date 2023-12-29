@@ -94,7 +94,7 @@
 </div>
 <form id="testForm">
     <button type="button" onclick="submitForm()">提交</button>
-    <button type="button" onclick="fetchTestData()">查询</button>
+    <button type="button" onclick="fetchTestData(currentPage)">查询</button>
 </form>
 <h2>数据库数据</h2>
 <table border="1">
@@ -109,8 +109,16 @@
     <tbody id="testDataBody">
     </tbody>
 </table>
-<script>
+<div id="pagination">
+    <button onclick="fetchPage(1)">第一页</button>
+    <button onclick="fetchPage(currentPage - 1)">上一页</button>
+    <span>当前页: <span id="currentPage">1</span></span>
+    <button id="nextPageButton" onclick="fetchPage(currentPage + 1)">下一页</button>
+</div>
 
+
+<script>
+    let currentPage = 1;
     function submitForm() {
         const NameEncrypted = document.getElementById('NameEncrypted').value;
         const NameUnencrypted = document.getElementById('NameUnencrypted').value;
@@ -126,7 +134,7 @@
 
         console.log("Values:", data);
 
-        fetch('http://192.168.6.108:8080/add', {
+        fetch('http://192.168.6.163:8080/add', {
             method: 'POST',
             mode: 'cors',
             headers: {
@@ -138,6 +146,7 @@
             .then(data => {
                 alert(data.message);
                 document.getElementById('testForm').reset();
+
             })
             .catch(error => {
                 console.error('Error:', error);
@@ -148,6 +157,7 @@
         const tbody = document.getElementById('testDataBody');
         tbody.innerHTML = '';
 
+        document.getElementById('currentPage').textContent = currentPage;
         tests.forEach(test => {
             const row = document.createElement('tr');
             const idCell = document.createElement('td');
@@ -172,22 +182,34 @@
 
             tbody.appendChild(row);
         });
+
     }
 
-    function fetchTestData() {
-        fetch('http://192.168.6.108:8080/list',{
+
+
+    function fetchTestData(page) {
+        fetch(`http://192.168.6.163:8080/list?page=${page}`, {
             mode: 'cors',
         })
             .then(response => response.json())
             .then(data => {
-                console.log(data.tests)
                 displayTestData(data.tests);
+                currentPage = page;
+                document.getElementById('currentPage').textContent = currentPage;
+                const nextPageButton = document.getElementById('nextPageButton');
+                nextPageButton.disabled = !data.hasNextPage;
             })
             .catch(error => {
                 console.error('Error:', error);
                 alert('Failed to fetch test data');
             });
     }
+    function fetchPage(page) {
+        if (page >= 1) {
+            fetchTestData(page);
+        }
+    }
+
 </script>
 
 </body>
